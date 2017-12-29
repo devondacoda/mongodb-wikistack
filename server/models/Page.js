@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const { Schema, model } = mongoose;
+const { Schema } = mongoose;
 
 // Creates blueprint of a document (like a row in an SQL table)
 // Multiple docs are associated in collections
@@ -13,7 +13,16 @@ const pageSchema = new Schema({
   author: { type: Schema.Types.ObjectId, ref: 'User' },
 });
 
-// Represents a collection (Same as an SQL table)
-const Page = model('Page', pageSchema);
+pageSchema.virtual('route').get(() =>
+  `wiki/${this.urlTitle}`);
 
-module.exports = Page;
+pageSchema.pre('validate', function urlify(next) {
+  this.urlTitle = this.title
+    ? this.title.replace(/\s+/g, '_').replace(/\W/g, '')
+    : Math.random().toString(36).substring(2, 7);
+
+  next();
+});
+
+
+module.exports = pageSchema;
