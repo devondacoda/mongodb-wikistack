@@ -2,8 +2,17 @@
 
 {% block content %}
   <h3>Pages</h3>
+  <a class="btn btn-primary" href="/search">Search by tag</a> <!--<input type="text" placeholder="search by tag"> -->
   <hr>
-  <ul class="list-unstyled">
-    <!-- PLACEHOLDER LIST OF PAGES -->
-  </ul>
+  {% if pages.length > 0 %}
+    <ul class="list-unstyled">
+      {% for page in pages %}
+        <li>
+          <a href="{{page.route}}">{{page.title}}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    There are no pages. Why don't you <a href='/wiki/add'>add one</a>?
+  {% endif %}
 {% endblock %}

@@ -2,7 +2,11 @@ const router = require('express').Router();
 const wikiRouter = require('./wiki');
 
 router.get('/', (req, res, next) => {
-  res.render('index');
+  res.redirect('/wiki');
+});
+
+router.get('/search', (req, res, next) => {
+  res.render('searchpage');
 });
 
 router.use('/wiki', wikiRouter);

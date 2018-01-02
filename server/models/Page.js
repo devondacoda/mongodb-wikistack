@@ -11,15 +11,25 @@ const pageSchema = new Schema({
   date: { type: Date, default: Date.now },
   status: { type: String, enum: ['open', 'closed'] },
   author: { type: Schema.Types.ObjectId, ref: 'User' },
+  tags: Array,
 });
 
-pageSchema.virtual('route').get(() =>
-  `wiki/${this.urlTitle}`);
+pageSchema.virtual('route').get(function route() {
+  return `/wiki/${this.urlTitle}`;
+});
 
 pageSchema.pre('validate', function urlify(next) {
   this.urlTitle = this.title
     ? this.title.replace(/\s+/g, '_').replace(/\W/g, '')
     : Math.random().toString(36).substring(2, 7);
+
+  next();
+});
+
+pageSchema.pre('validate', function createTags(next) {
+  this.tags = this.tags.length
+    ? this.tags.join(',').split(',').map(tag => tag.trim())
+    : [];
 
   next();
 });

@@ -3,12 +3,17 @@ const { Page, User } = require('../models/');
 
 router.route('/')
   .get((req, res) => {
-    res.redirect('/');
+    Page.find()
+      .exec()
+      .then(pages => res.render('index', {
+        pages,
+      }));
   })
   .post((req, res) => {
     const page = new Page({
       title: req.body.title,
       content: req.body.content,
+      tags: req.body.tags,
     });
 
     page.save()
@@ -23,11 +28,18 @@ router.get('/add', (req, res) => {
   res.render('addpage');
 });
 
+router.get('/search', (req, res, next) => {
+  Page.findByTags(req.query.tags)
+    .then(pages => {
+      res.render('index', { pages })
+    })
+});
+
 router.get('/:pageURL', (req, res, next) => {
   Page.findOne({ urlTitle: req.params.pageURL })
     .exec()
     .then(page => res.render('wikipage', {
-      page,
+      page, tags: page.tags,
     }))
     .catch(next);
 });
