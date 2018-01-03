@@ -34,5 +34,22 @@ pageSchema.pre('validate', function createTags(next) {
   next();
 });
 
+pageSchema.statics.findByTags = function findByTags(tags, urlTitle) {
+  const tagsArr = Array.isArray(tags)
+    ? tags
+    : tags.split(',').map(tag => tag.trim());
+
+  return this.find({ // 'this' refers to the model built with the pageSchema (Page)
+    // $in matches a set of possibilities
+    tags: { $in: tagsArr },
+    urlTitle: { $ne: urlTitle },
+  }).exec();
+};
+
+pageSchema.methods.findSimilar = function findSimilar() {
+  const { tags, urlTitle } = this;
+  return this.findByTags(tags, urlTitle);
+};
+
 
 module.exports = pageSchema;

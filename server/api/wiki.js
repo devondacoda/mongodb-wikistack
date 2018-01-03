@@ -16,7 +16,8 @@ router.route('/')
       tags: req.body.tags,
     });
 
-    page.save()
+    const user = User.findOrCreate(req.body)
+      .then(() => page.save())
       .then(() => res.redirect(page.route))
       .catch(error => res.render('error', {
         message: 'Could not complete request',
@@ -30,19 +31,22 @@ router.get('/add', (req, res) => {
 
 router.get('/search', (req, res, next) => {
   Page.findByTags(req.query.tags)
-    .then(pages => {
-      res.render('index', { pages })
-    })
+    .then(pages => res.render('index', { pages }))
+    .catch(next);
 });
 
 router.get('/:pageURL', (req, res, next) => {
   Page.findOne({ urlTitle: req.params.pageURL })
     .exec()
-    .then(page => res.render('wikipage', {
-      page, tags: page.tags,
-    }))
+    .then(page => res.render('wikipage', { page }))
     .catch(next);
 });
 
+router.get('/:pageURL/similar', (req, res, next) => {
+  Page.findOne({ urlTitle: req.params.pageURL })
+    .then(page => page.findSimilar())
+    .then(pages => res.render('index', { pages }))
+    .catch(next);
+});
 
 module.exports = router;
